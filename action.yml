@@ -30,6 +30,7 @@ runs:
           elixir-version: ${{ env.ELIXIR_VERSION_SPEC }}
       - name: Cache Keys
         id: keys
+        shell: bash
         run: |
           echo ::set-output name=deps_key::deps-${{ runner.os }}
           echo ::set-output name=lockfile_key::${{ hashFiles('mix.lock') }}
@@ -53,12 +54,16 @@ runs:
           restore-keys: |
             ${{ steps.keys.outputs.build_cache_prefix }}${{ steps.keys.outputs.build_key }}-${{ steps.keys.outputs.version_key }}-
       - name: Authorize Hex Organization
+        shell: bash
         run: mix hex.organization auth peek --key ${{ secrets.PEEK_HEX_KEY }}
       - name: Authorize Oban
+        shell: bash
         run: mix hex.organization auth oban --key ${{ secrets.OBAN_KEY }}
       - name: Install dependencies
         if: steps.deps_cache.outputs['cache-hit'] != 'true'
+        shell: bash
         run: mix deps.get
       - name: Compile
         if: steps.build_cache.outputs['cache-hit'] != 'true'
+        shell: bash
         run: mix compile --warnings-as-errors
