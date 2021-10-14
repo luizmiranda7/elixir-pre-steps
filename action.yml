@@ -18,6 +18,15 @@ inputs:
   build_cache_prefix: 
     description: "Build cache prefix"
     required: true
+  hex_org: 
+    description: "Hex org"
+    required: false
+  hex_key: 
+    description: "Hex key"
+    required: false
+  oban_key: 
+    description: "Oban key"
+    required: false
 
 runs:
   using: "composite"
@@ -26,19 +35,19 @@ runs:
       - uses: erlef/setup-beam@v1.9
         id: setup
         with:
-          otp-version: ${{ env.OTP_VERSION_SPEC }}
-          elixir-version: ${{ env.ELIXIR_VERSION_SPEC }}
+          otp-version: ${{ inputs.otp_version_spec }}
+          elixir-version: ${{ inputs.elixir_version_spec }}
       - name: Cache Keys
         id: keys
         shell: bash
         run: |
           echo ::set-output name=deps_key::deps-${{ runner.os }}
           echo ::set-output name=lockfile_key::${{ hashFiles('mix.lock') }}
-          echo ::set-output name=build_key::build-${{ runner.os }}-${{ env.MIX_ENV }}
+          echo ::set-output name=build_key::build-${{ runner.os }}-${{ inpuyt.mix_env }}
           echo ::set-output name=version_key::${{ steps.setup.outputs['otp-version'] }}-${{ steps.setup.outputs['elixir-version'] }}
           echo ::set-output name=files_key::${{ hashFiles('apps/*/lib/**/*.ex','apps/*/test/**/*.ex','mix.lock') }}
-          echo ::set-output name=deps_cache_prefix::${{ env.DEPS_CACHE_PREFIX }}
-          echo ::set-output name=build_cache_prefix::${{ env.BUILD_CACHE_PREFIX }}
+          echo ::set-output name=deps_cache_prefix::${{ inpuyt.deps_cache_prefix }}
+          echo ::set-output name=build_cache_prefix::${{ inpuyt.build_cache_prefix }}
       - uses: actions/cache@v2.1.6
         id: deps_cache
         with:
@@ -55,15 +64,13 @@ runs:
             ${{ steps.keys.outputs.build_cache_prefix }}${{ steps.keys.outputs.build_key }}-${{ steps.keys.outputs.version_key }}-
       - name: Authorize Hex Organization
         shell: bash
-        run: mix hex.organization auth peek --key ${{ secrets.PEEK_HEX_KEY }}
+        run: mix hex.organization auth ${{ inputs.hex_org }} --key ${{ inputs.hex_key }}
       - name: Authorize Oban
         shell: bash
-        run: mix hex.organization auth oban --key ${{ secrets.OBAN_KEY }}
+        run: mix hex.organization auth oban --key ${{ inputs.oban_key }}
       - name: Install dependencies
-        if: steps.deps_cache.outputs['cache-hit'] != 'true'
         shell: bash
-        run: mix deps.get
+        run: [[ steps.deps_cache.outputs['cache-hit'] != 'true' ]] && mix deps.get || true
       - name: Compile
-        if: steps.build_cache.outputs['cache-hit'] != 'true'
         shell: bash
-        run: mix compile --warnings-as-errors
+        run: [[ steps.build_cache.outputs['cache-hit'] != 'true' ]] && mix compile --warnings-as-errors || true
