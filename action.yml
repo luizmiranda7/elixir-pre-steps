@@ -43,11 +43,11 @@ runs:
         run: |
           echo ::set-output name=deps_key::deps-${{ runner.os }}
           echo ::set-output name=lockfile_key::${{ hashFiles('mix.lock') }}
-          echo ::set-output name=build_key::build-${{ runner.os }}-${{ inpuyt.mix_env }}
+          echo ::set-output name=build_key::build-${{ runner.os }}-${{ inputs.mix_env }}
           echo ::set-output name=version_key::${{ steps.setup.outputs['otp-version'] }}-${{ steps.setup.outputs['elixir-version'] }}
           echo ::set-output name=files_key::${{ hashFiles('apps/*/lib/**/*.ex','apps/*/test/**/*.ex','mix.lock') }}
-          echo ::set-output name=deps_cache_prefix::${{ inpuyt.deps_cache_prefix }}
-          echo ::set-output name=build_cache_prefix::${{ inpuyt.build_cache_prefix }}
+          echo ::set-output name=deps_cache_prefix::${{ inputs.deps_cache_prefix }}
+          echo ::set-output name=build_cache_prefix::${{ inputs.build_cache_prefix }}
       - uses: actions/cache@v2.1.6
         id: deps_cache
         with:
