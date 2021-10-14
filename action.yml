@@ -70,7 +70,9 @@ runs:
         run: mix hex.organization auth oban --key ${{ inputs.oban_key }}
       - name: Install dependencies
         shell: bash
-        run: [[ steps.deps_cache.outputs['cache-hit'] != 'true' ]] && mix deps.get || true
+        run: |
+          [[ steps.deps_cache.outputs['cache-hit'] != 'true' ]] && mix deps.get || true
       - name: Compile
         shell: bash
-        run: [[ steps.build_cache.outputs['cache-hit'] != 'true' ]] && mix compile --warnings-as-errors || true
+        run: |
+          [[ steps.build_cache.outputs['cache-hit'] != 'true' ]] && mix compile --warnings-as-errors || true
