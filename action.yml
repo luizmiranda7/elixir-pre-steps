@@ -64,10 +64,8 @@ runs:
             ${{ steps.keys.outputs.build_cache_prefix }}${{ steps.keys.outputs.build_key }}-${{ steps.keys.outputs.version_key }}-
       - name: Authorize Hex Organization
         shell: bash
-        run: mix hex.organization auth ${{ inputs.hex_org }} --key ${{ inputs.hex_key }}
-      - name: Authorize Oban
-        shell: bash
-        run: mix hex.organization auth oban --key ${{ inputs.oban_key }}
+        run: |
+          [ -z "${{ inputs.hex_org }}" ] && mix hex.organization auth ${{ inputs.hex_org }} --key ${{ inputs.hex_key }}
       - name: Install dependencies
         shell: bash
         run: |
