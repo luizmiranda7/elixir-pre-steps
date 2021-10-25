@@ -18,15 +18,6 @@ inputs:
   build_cache_prefix: 
     description: "Build cache prefix"
     required: true
-  hex_org: 
-    description: "Hex org"
-    required: false
-  hex_key: 
-    description: "Hex key"
-    required: false
-  oban_key: 
-    description: "Oban key"
-    required: false
 
 runs:
   using: "composite"
@@ -62,12 +53,6 @@ runs:
           key: ${{ steps.keys.outputs.build_cache_prefix }}${{ steps.keys.outputs.build_key }}-${{ steps.keys.outputs.version_key }}-${{ steps.keys.outputs.files_key }}
           restore-keys: |
             ${{ steps.keys.outputs.build_cache_prefix }}${{ steps.keys.outputs.build_key }}-${{ steps.keys.outputs.version_key }}-
-      - name: Authorize Hex Organization
-        shell: bash
-        run: mix hex.organization auth ${{ inputs.hex_org }} --key ${{ inputs.hex_key }}
-      - name: Authorize Oban
-        shell: bash
-        run: mix hex.organization auth oban --key ${{ inputs.oban_key }}
       - name: Install dependencies
         shell: bash
         run: |
